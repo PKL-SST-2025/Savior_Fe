@@ -23,7 +23,6 @@ interface FooterLink {
 }
 
 const App: Component = () => {
-  const [activeNav, setActiveNav] = createSignal('');
 
   const navItems: NavItem[] = [
     { label: 'Beranda', href: '#' },
@@ -33,23 +32,7 @@ const App: Component = () => {
     { label: 'Budget Planner', href: '#' }
   ];
 
-  const features: Feature[] = [
-    {
-      title: 'Statistic',
-      description: 'Record all Daily Tracking with ease',
-      icon: '📊'
-    },
-    {
-      title: 'Budget Planner',
-      description: 'Limit your budget for items',
-      icon: '💰'
-    },
-    {
-      title: 'Personalized Suggestions',
-      description: 'Activities tailored to your condition',
-      icon: '💡'
-    }
-  ];
+ 
 
   const testimonials: Testimonial[] = [
     {

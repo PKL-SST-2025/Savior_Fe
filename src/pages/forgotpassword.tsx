@@ -1,4 +1,4 @@
-import { Component, createSignal } from 'solid-js';
+import {createSignal } from 'solid-js';
 import bannerImg from '../assets/banner.png';
 
 export default function ForgotPassword() {
