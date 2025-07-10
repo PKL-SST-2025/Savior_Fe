@@ -1,6 +1,6 @@
 import { Component, createSignal } from 'solid-js';
 import { useNavigate } from '@solidjs/router';
-import bannerImg from '../assets/banner.png';
+import bannerImg from '../assets/Banner.png';
 
 const SignIn: Component = () => {
   const [email, setEmail] = createSignal('');
