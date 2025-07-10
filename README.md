@@ -1,28 +1,10 @@
-## Usage
+Nama: Albertus Christian Riyanto Sekolah: Smk Telkom Purwokerto 
 
-```bash
-$ npm install # or pnpm install or yarn install
-```
+Link Website: https://hosting-savior-fe.vercel.app/
+Link Figma: https://www.figma.com/design/1iX42sOkLAWipQj64dCWaS/asli-boy?node-id=0-1&t=5ipKeJbyqzFWDZEV-1
 
-### Learn more on the [Solid Website](https://solidjs.com) and come chat with us on our [Discord](https://discord.com/invite/solidjs)
-
-## Available Scripts
-
-In the project directory, you can run:
-
-### `npm run dev`
-
-Runs the app in the development mode.<br>
-Open [http://localhost:5173](http://localhost:5173) to view it in the browser.
-
-### `npm run build`
-
-Builds the app for production to the `dist` folder.<br>
-It correctly bundles Solid in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
-
-## Deployment
-
-Learn more about deploying your application with the [documentations](https://vite.dev/guide/static-deploy.html)
+pengenalan lingkungan kerja dan pengenalan bahasa pemrograman rust 23-06-2025
+mencari ide aplikasi dan mulai mendesign di rumah karena wfh 24-06-2025
+finishing design di office 25-06-2025
+mengerjakan front end nya dan mengirimkan profile link github untuk kolaborasi 26-06-2025
+lalu pada tanggal 30 juni hingga 10 juli saya menyelesaikan front end nya dan merevisi sedikit pada bagian design dan sudah di hosting juga 30-06-2025 - 10-07-2025
