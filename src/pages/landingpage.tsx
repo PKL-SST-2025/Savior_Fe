@@ -1,15 +1,11 @@
-import { Component, createSignal } from 'solid-js';
+import { Component, } from 'solid-js';
 
 interface NavItem {
   label: string;
   href: string;
 }
 
-interface Feature {
-  title: string;
-  description: string;
-  icon: string;
-}
+
 
 interface Testimonial {
   name: string;
