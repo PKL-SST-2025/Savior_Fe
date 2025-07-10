@@ -6,6 +6,7 @@ export default defineConfig({
     tailwindcss(),
     solidPlugin(),
   ],
+  base: '/', // PENTING untuk routing
   server: {
     port: 3000,
   },
