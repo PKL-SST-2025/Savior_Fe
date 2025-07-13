@@ -17,3 +17,6 @@ mengerjakan front end nya dan mengirimkan profile link github untuk kolaborasi 2
 
 lalu pada tanggal 30 juni hingga 10 juli saya menyelesaikan front end nya dan merevisi sedikit pada bagian design dan sudah di hosting juga 30-06-2025 - 10-07-2025
 ]
+
+
+Link Daily Report: https://docs.google.com/spreadsheets/d/1qQpzx4YBnwBmSkLmba1nr45cfDdj6DcfPScmbLHAI0Q/edit?usp=sharing
