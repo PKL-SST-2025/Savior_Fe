@@ -6,18 +6,44 @@ const SignupPage: Component = () => {
   const [email, setEmail] = createSignal('');
   const [password, setPassword] = createSignal('');
   const [error, setError] = createSignal('');
+  const [loading, setLoading] = createSignal(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e: Event) => {
+  const handleSubmit = async (e: Event) => {
     e.preventDefault();
     if (!email() || !password()) {
       setError('Email dan password wajib diisi.');
       return;
     }
+
+    setLoading(true);
     setError('');
-    localStorage.setItem('signupUser', JSON.stringify({ email: email(), password: password() }));
-    navigate('/SignIn');
+
+    try {
+      const response = await fetch('hosting-albertus-production.up.railway.app/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email(), password: password() })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || 'Terjadi kesalahan.');
+        return;
+      }
+
+      // Jika sukses, tampilkan pesan sukses dan redirect ke sign in
+      alert('Akun berhasil dibuat! Silakan login.');
+      navigate('/SignIn');
+    } catch (err) {
+      console.error('Signup error:', err);
+      setError('Gagal terhubung ke server.');
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   return (
     <div class="flex flex-col md:flex-row min-h-screen overflow-y-auto">
@@ -99,8 +125,9 @@ const SignupPage: Component = () => {
             <button
               type="submit"
               class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+              disabled={loading()}
             >
-              Create an account
+              {loading() ? 'Creating account...' : 'Create an account'}
             </button>
           </form>
 

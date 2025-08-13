@@ -8,8 +8,13 @@ export default defineConfig({
   ],
   base: '/', // PENTING untuk routing
   server: {
-    port: 3000,
-  },
+      proxy: {
+        '/api': {
+          target: 'http://localhost:3000', // Your Axum backend address
+          changeOrigin: true,
+        },
+      },
+    },
   build: {
     target: 'esnext',
     outDir: 'dist', // pastikan ini ada saat deploy ke Vercel

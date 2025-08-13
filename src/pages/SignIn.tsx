@@ -6,30 +6,48 @@ const SignIn: Component = () => {
   const [email, setEmail] = createSignal('');
   const [password, setPassword] = createSignal('');
   const [error, setError] = createSignal('');
+  const [loading, setLoading] = createSignal(false);
   const navigate = useNavigate();
 
-  const getRegisteredUser = () => {
-    try {
-      const user = JSON.parse(localStorage.getItem('signupUser') || '{}');
-      return user || {};
-    } catch {
-      return {};
-    }
-  };
 
-  const handleSubmit = (e: Event) => {
+  const handleSubmit = async (e: Event) => {
     e.preventDefault();
-    const user = getRegisteredUser();
     if (!email() || !password()) {
       setError('Email dan password wajib diisi.');
       return;
     }
-    if (email() !== user.email || password() !== user.password) {
-      setError('Email atau password salah.');
-      return;
-    }
+
+    setLoading(true);
     setError('');
-    navigate('/dashboard');
+
+    try {
+      const response = await fetch('hosting-albertus-production.up.railway.app/signin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email(), password: password() })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || 'Email atau password salah.');
+        return;
+      }
+
+      // Simpan user_id ke localStorage jika diperlukan
+      if (data.user_id) {
+        localStorage.setItem('user_id', data.user_id);
+      }
+
+      // Jika sukses, arahkan ke dashboard
+      setError('');
+      navigate('/dashboard');
+    } catch (err) {
+      console.error('Login error:', err);
+      setError('Gagal terhubung ke server.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -77,7 +95,7 @@ const SignIn: Component = () => {
           </div>
 
           {/* Header */}
-          <h2 class="text-2xl font-bold mb-2">WELCOME TO BIAYA!</h2>
+          <h2 class="text-2xl font-bold mb-2">WELCOME TO SAVIOR!</h2>
           <p class="text-sm text-gray-500 mb-6">
             Sign in and start managing your wealth account.
           </p>
@@ -125,8 +143,9 @@ const SignIn: Component = () => {
             <button
               class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
               type="submit"
+              disabled={loading()}
             >
-              Sign in
+              {loading() ? 'Signing in...' : 'Sign in'}
             </button>
           </form>
 
