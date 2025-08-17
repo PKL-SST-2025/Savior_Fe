@@ -38,19 +38,19 @@ const App: Component = () => {
     },
     {
       name: 'John D.',
-      text: 'Great financial tool! I love how easy it is to track my daily expenses using Biaya.',
+      text: 'Great financial tool! I love how easy it is to track my daily expenses using Savior.',
       rating: 5
     },
     {
       name: 'Lisa K.',
-      text: 'Perfect budgeting companion! The personalized suggestions have helped me save so much using Biaya.',
+      text: 'Perfect budgeting companion! The personalized suggestions have helped me save so much using Savior.',
       rating: 5
     }
   ];
 
   const footerLinks: FooterLink[] = [
     {
-      title: 'Biaya',
+      title: 'Savior',
       links: ['About Us', 'Privacy Policy', 'Terms of Service']
     },
     {
@@ -86,7 +86,7 @@ const App: Component = () => {
         <div class="w-full px-4 sm:px-6 lg:px-8">
           <div class="flex justify-between items-center h-16">
             <div class="flex items-center">
-              <h1 class="text-xl font-bold text-indigo-600">Biaya</h1>
+              <h1 class="text-xl font-bold text-indigo-600">Savior</h1>
             </div>
             <div class="">
               <div class="ml-10 flex items-baseline space-x-4">
@@ -112,7 +112,7 @@ const App: Component = () => {
             Spending Amount
           </h1>
           <p class="text-xl md:text-2xl mb-8 text-indigo-100 max-w-2xl mx-auto">
-            Biaya is an platform that helps you to manage spending money from your asset.
+            Savior is an platform that helps you to manage spending money from your asset.
           </p>
           <button class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg text-lg transition-colors shadow-lg" onclick={() => window.location.href = '/SignIn'}>
             Get Started →
@@ -222,7 +222,7 @@ const App: Component = () => {
             Spend Tracking?
           </h2>
           <p class="text-xl text-indigo-100 mb-8 max-w-2xl mx-auto">
-            Join thousands of users already benefiting from Biaya for a more smarter and saving life.
+            Join thousands of users already benefiting from Savior for a more smarter and saving life.
           </p>
           <button class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg text-lg transition-colors shadow-lg" onclick={() => window.location.href = '/SignIn'}>
             Get Started Now
@@ -252,7 +252,7 @@ const App: Component = () => {
           
           <div class="border-t border-indigo-800 mt-12 pt-8 text-center">
             <p class="text-indigo-200">
-              © 2024 Biaya. All rights reserved. Made with ❤️ for better financial management.
+              © 2024 Savior. All rights reserved. Made with ❤️ for better financial management.
             </p>
           </div>
         </div>
