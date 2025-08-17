@@ -420,56 +420,52 @@ const Riwayat = () => {
             {/* Table */}
             {!loading() && (
               <div class="overflow-x-auto">
-                <table class="min-w-full text-xs md:text-sm">
+                <table class="w-full border-collapse border border-gray-300">
                   <thead>
-                    <tr class="text-gray-400 border-b">
-                      <th class="py-2 text-left font-semibold whitespace-nowrap">Tanggal</th>
-                      <th class="py-2 text-left font-semibold whitespace-nowrap">Kategori</th>
-                      <th class="py-2 text-left font-semibold whitespace-nowrap">Deskripsi</th>
-                      <th class="py-2 text-left font-semibold whitespace-nowrap">Jumlah</th>
-                      <th class="py-2 text-left font-semibold whitespace-nowrap">Tanggal Input</th>
-                      <th class="py-2 text-right font-semibold whitespace-nowrap">Actions</th>
+                    <tr class="bg-gray-50">
+                      <th class="border border-gray-300 px-4 py-2 text-left font-semibold">Tanggal</th>
+                      <th class="border border-gray-300 px-4 py-2 text-left font-semibold">Kategori</th>
+                      <th class="border border-gray-300 px-4 py-2 text-left font-semibold">Deskripsi</th>
+                      <th class="border border-gray-300 px-4 py-2 text-left font-semibold">Jumlah</th>
+                      <th class="border border-gray-300 px-4 py-2 text-left font-semibold">Tanggal Input</th>
+                      <th class="border border-gray-300 px-4 py-2 text-left font-semibold">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {transaksiList().length === 0 ? (
-                      <tr>
-                        <td colspan="6" class="py-8 text-center text-gray-500">
-                          No transactions found. Start by adding your first transaction.
-                        </td>
-                      </tr>
-                    ) : (
+                    {paginatedData().length > 0 ? (
                       <For each={paginatedData()}>
-                        {(item) => (
-                          <tr class="border-b hover:bg-gray-50">
-                            <td class="py-3 font-medium whitespace-nowrap">{formatDate(item.tanggal)}</td>
-                            <td class="py-3 text-gray-600 max-w-xs truncate">{item.kategori_nama}</td>
-                            <td class="py-3 text-gray-600 max-w-xs truncate">{item.deskripsi}</td>
-                            <td class="py-3 font-medium text-green-600">{formatCurrency(item.jumlah)}</td>
-                            <td class="py-3 text-gray-500 whitespace-nowrap">{formatDate(item.created_at || item.tanggal)}</td>
-                            <td class="py-3 text-right flex gap-2 justify-end">
-                              <button 
-                                class="bg-[#23243A] text-white px-4 md:px-6 py-1.5 rounded-full font-semibold shadow hover:opacity-90 text-xs md:text-sm disabled:opacity-50"
-                                disabled={loading()}
-                                onClick={() => {
-                                  // You can implement edit functionality here
-                                  // For now, we'll just show an alert
-                                  alert('Edit functionality can be implemented based on your needs');
-                                }}
-                              >
-                                Edit
-                              </button>
-                              <button 
-                                class="bg-[#FF4B4B] text-white px-4 md:px-6 py-1.5 rounded-full font-semibold shadow hover:opacity-90 text-xs md:text-sm disabled:opacity-50"
-                                disabled={loading()}
-                                onClick={() => handleDelete(item.id)}
-                              >
-                                Delete
-                              </button>
+                        {(transaksi) => (
+                          <tr class="hover:bg-gray-50">
+                            <td class="border border-gray-300 px-4 py-2">{formatDate(transaksi.tanggal)}</td>
+                            <td class="border border-gray-300 px-4 py-2">{transaksi.kategori_nama}</td>
+                            <td class="border border-gray-300 px-4 py-2">{transaksi.deskripsi}</td>
+                            <td class="border border-gray-300 px-4 py-2">{formatCurrency(transaksi.jumlah)}</td>
+                            <td class="border border-gray-300 px-4 py-2">{formatDate(transaksi.created_at || transaksi.tanggal)}</td>
+                            <td class="border border-gray-300 px-4 py-2">
+                              <div class="flex gap-2">
+                                <button 
+                                  class="bg-[#23243A] text-white px-4 md:px-6 py-1.5 rounded-full font-semibold shadow hover:opacity-90 text-xs md:text-sm"
+                                  onClick={() => alert('Edit functionality can be implemented based on your needs')}
+                                >
+                                  Edit
+                                </button>
+                                <button 
+                                  class="bg-[#FF4B4B] text-white px-4 md:px-6 py-1.5 rounded-full font-semibold shadow hover:opacity-90 text-xs md:text-sm"
+                                  onClick={() => handleDelete(transaksi.id)}
+                                >
+                                  Delete
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         )}
                       </For>
+                    ) : (
+                      <tr>
+                        <td colspan="6" class="border border-gray-300 px-4 py-8 text-center text-gray-500">
+                          No transactions found. Start by adding your first transaction.
+                        </td>
+                      </tr>
                     )}
                   </tbody>
                 </table>

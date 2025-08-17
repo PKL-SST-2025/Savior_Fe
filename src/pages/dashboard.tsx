@@ -856,44 +856,32 @@ const Dashboard: Component = () => {
             <div class="bg-white shadow rounded p-6 mx-4 mb-4">
               <h2 class="text-center font-bold mb-6 text-lg">STATISTIK PENGELUARAN</h2>
               <div class="overflow-x-auto">
-                <table class="w-full text-center border-collapse">
-                  <thead>
-                    <tr class="border-b-2 border-gray-200">
-                      <th class="py-3 px-4 font-bold text-gray-700">KATEGORI</th>
-                      <th class="py-3 px-4 font-bold text-gray-700">HARIAN</th>
-                      <th class="py-3 px-4 font-bold text-gray-700">BULANAN</th>
-                    </tr>
-                  </thead>
-                  <tbody class="divide-y divide-gray-100">
-                    <tr class="hover:bg-gray-50">
-                      <td class="py-3 px-4 font-semibold text-gray-800">Total</td>
-                      <td class="py-3 px-4 text-blue-600 font-bold">
-                        {data() ? formatCurrency(data()!.total_hari_ini) : 'Rp 0'}
-                      </td>
-                      <td class="py-3 px-4 text-blue-600 font-bold">
-                        {data() ? formatCurrency(data()!.total_bulan_ini) : 'Rp 0'}
-                      </td>
-                    </tr>
-                    <tr class="hover:bg-gray-50">
-                      <td class="py-3 px-4 font-semibold text-gray-800">Tertinggi</td>
-                      <td class="py-3 px-4 text-green-600 font-bold">
-                        {data() ? formatCurrency(data()!.tertinggi_hari_ini) : 'Rp 0'}
-                      </td>
-                      <td class="py-3 px-4 text-green-600 font-bold">
-                        {data() ? formatCurrency(data()!.tertinggi_bulan_ini) : 'Rp 0'}
-                      </td>
-                    </tr>
-                    <tr class="hover:bg-gray-50">
-                      <td class="py-3 px-4 font-semibold text-gray-800">Terendah</td>
-                      <td class="py-3 px-4 text-orange-600 font-bold">
-                        {data() ? formatCurrency(data()!.terendah_hari_ini) : 'Rp 0'}
-                      </td>
-                      <td class="py-3 px-4 text-orange-600 font-bold">
-                        {data() ? formatCurrency(data()!.terendah_bulan_ini) : 'Rp 0'}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                  <table class="w-full border-collapse border border-gray-300">
+                    <thead>
+                      <tr class="bg-gray-50">
+                        <th class="border border-gray-300 px-4 py-2 text-left font-semibold">KATEGORI</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left font-semibold">HARIAN</th>
+                        <th class="border border-gray-300 px-4 py-2 text-left font-semibold">BULANAN</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr class="hover:bg-gray-50">
+                        <td class="border border-gray-300 px-4 py-2">Total</td>
+                        <td class="border border-gray-300 px-4 py-2">{data() ? formatCurrency(data()!.total_hari_ini) : 'Rp 0'}</td>
+                        <td class="border border-gray-300 px-4 py-2">{data() ? formatCurrency(data()!.total_bulan_ini) : 'Rp 0'}</td>
+                      </tr>
+                      <tr class="hover:bg-gray-50">
+                        <td class="border border-gray-300 px-4 py-2">Tertinggi</td>
+                        <td class="border border-gray-300 px-4 py-2">{data() ? formatCurrency(data()!.tertinggi_hari_ini) : 'Rp 0'}</td>
+                        <td class="border border-gray-300 px-4 py-2">{data() ? formatCurrency(data()!.tertinggi_bulan_ini) : 'Rp 0'}</td>
+                      </tr>
+                      <tr class="hover:bg-gray-50">
+                        <td class="border border-gray-300 px-4 py-2">Terendah</td>
+                        <td class="border border-gray-300 px-4 py-2">{data() ? formatCurrency(data()!.terendah_hari_ini) : 'Rp 0'}</td>
+                        <td class="border border-gray-300 px-4 py-2">{data() ? formatCurrency(data()!.terendah_bulan_ini) : 'Rp 0'}</td>
+                      </tr>
+                    </tbody>
+                  </table>
               </div>
               
               {/* Quick stats cards */}
