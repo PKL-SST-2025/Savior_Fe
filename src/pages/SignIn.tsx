@@ -21,7 +21,7 @@ const SignIn: Component = () => {
     setError('');
 
     try {
-      const response = await fetch('hosting-albertus-production.up.railway.app/signin', {
+      const response = await fetch('https://hosting-albertus-production.up.railway.app/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email(), password: password() })

@@ -54,7 +54,7 @@ const Kategori = () => {
     window.location.href = '/SignIn';
   };
 
-  const BASE_URL = 'hosting-albertus-production.up.railway.app/api';
+  const BASE_URL = 'https://hosting-albertus-production.up.railway.app/api';
 
   // Fetch categories from backend
   const fetchKategori = async () => {

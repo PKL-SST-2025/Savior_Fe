@@ -63,7 +63,7 @@ const Budget = () => {
     window.location.href = '/SignIn';
   };
 
-  const BASE_URL = 'hosting-albertus-production.up.railway.app/api';
+  const BASE_URL = 'https://hosting-albertus-production.up.railway.app/api';
   const userId = localStorage.getItem('user_id') || '';
 
   // Fetch categories for dropdown

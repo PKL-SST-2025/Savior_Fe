@@ -11,7 +11,7 @@ const ForgotPassword = () => {
   const [error, setError] = createSignal("");
 
   const navigate = useNavigate();
-  const BASE_URL = 'hosting-albertus-production.up.railway.app';
+  const BASE_URL = 'https://hosting-albertus-production.up.railway.app';
 
   const handleSubmit = async (e: Event) => {
     e.preventDefault();

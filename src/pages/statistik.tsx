@@ -144,7 +144,7 @@ const Statistik = () => {
     try {
       setDebugInfo("🔄 Attempting login simulation...");
       
-      const response = await fetch('hosting-albertus-production.up.railway.app/signin', {
+      const response = await fetch('https://hosting-albertus-production.up.railway.app/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -170,7 +170,7 @@ const Statistik = () => {
   };
 
   const buildApiUrl = (userId: string) => {
-    const baseUrl = `hosting-albertus-production.up.railway.app/api/statistik/${userId}`;
+    const baseUrl = `https://hosting-albertus-production.up.railway.app/api/statistik/${userId}`;
     const params = new URLSearchParams();
     
     params.append('filter', filter());
@@ -231,7 +231,7 @@ const Statistik = () => {
         if (err.name === 'AbortError') {
           setError("Request timeout. Periksa koneksi server dan coba lagi.");
         } else if (err.message.includes('Failed to fetch')) {
-          setError("Tidak dapat terhubung ke server. Pastikan backend berjalan di hosting-albertus-production.up.railway.app");
+          setError("Tidak dapat terhubung ke server. Pastikan backend berjalan di https://hosting-albertus-production.up.railway.app");
         } else {
           setError(`Error: ${err.message}`);
         }

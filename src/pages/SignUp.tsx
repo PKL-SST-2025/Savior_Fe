@@ -20,7 +20,7 @@ const SignupPage: Component = () => {
     setError('');
 
     try {
-      const response = await fetch('hosting-albertus-production.up.railway.app/signup', {
+      const response = await fetch('https://hosting-albertus-production.up.railway.app/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email(), password: password() })

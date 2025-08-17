@@ -67,33 +67,38 @@ const Dashboard: Component = () => {
 
   // Get user ID
   const getUserId = () => {
-    const fallbackUserId = "8787368b-3437-4440-9d99-0675386f1626";
-    return fallbackUserId;
+    // Ambil user_id dari localStorage jika ada
+    const storedId = localStorage.getItem('user_id');
+    if (storedId) return storedId;
+    // Fallback jika tidak ada
+    return "8787368b-3437-4440-9d99-0675386f1626";
   };
 
   // Function to get username
   const getUserName = () => {
+    // Ambil dari state userData (hasil fetch dari backend)
     const user = userData();
-    
-    if (user && user.username) {
-      return user.username;
+    if (user) {
+      // Cek field nama atau username
+      if (user.username) return user.username;
+      if ((user as any).nama) return (user as any).nama;
     }
-    
-    // Try localStorage
+
+    // Coba ambil dari localStorage 'user'
     try {
       const storedUserData = localStorage.getItem('user');
-      
       if (storedUserData) {
         const parsedUser = JSON.parse(storedUserData);
-        
-        if (parsedUser && parsedUser.username) {
-          return parsedUser.username;
+        if (parsedUser) {
+          if (parsedUser.username) return parsedUser.username;
+          if (parsedUser.nama) return parsedUser.nama;
         }
       }
     } catch (error) {
       // Handle error silently
     }
-    
+
+    // Fallback
     return 'Test User';
   };
 
@@ -102,7 +107,7 @@ const Dashboard: Component = () => {
     try {
       const userId = getUserId();
       
-      const response = await fetch(`hosting-albertus-production.up.railway.app/api/user/${userId}`);
+      const response = await fetch(`https://hosting-albertus-production.up.railway.app/api/user/${userId}`);
       
       if (response.ok) {
         const result = await response.json();
@@ -372,7 +377,7 @@ const Dashboard: Component = () => {
     try {
       const userId = getUserId();
       
-      const response = await fetch(`hosting-albertus-production.up.railway.app/api/dashboard/${userId}`, {
+      const response = await fetch(`https://hosting-albertus-production.up.railway.app/api/dashboard/${userId}`, {
         method: 'GET',
         headers: { 
           'Content-Type': 'application/json',

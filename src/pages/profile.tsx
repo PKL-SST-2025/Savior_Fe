@@ -55,7 +55,7 @@ const Profile = () => {
 
   const loadProfile = async (userIdParam: string) => {
     try {
-      const response = await fetch(`hosting-albertus-production.up.railway.app/api/profile/${userIdParam}`);
+      const response = await fetch(`https://hosting-albertus-production.up.railway.app/api/profile/${userIdParam}`);
       const data = await response.json();
       
       if (response.ok && data.profile) {
@@ -81,7 +81,7 @@ const Profile = () => {
       setSaving(true);
       setError("");
 
-      const response = await fetch(`hosting-albertus-production.up.railway.app/api/profile/${userId()}`, {
+      const response = await fetch(`https://hosting-albertus-production.up.railway.app/api/profile/${userId()}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -115,8 +115,8 @@ const Profile = () => {
     try {
       setSaving(true);
       setError("");
-      
-      const response = await fetch(`hosting-albertus-production.up.railway.app/api/profile/${userId()}/email`, {
+
+      const response = await fetch(`https://hosting-albertus-production.up.railway.app/api/profile/${userId()}/email`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -165,7 +165,7 @@ const Profile = () => {
       setSaving(true);
       setError("");
       
-      const response = await fetch(`hosting-albertus-production.up.railway.app/api/profile/${userId()}/password`, {
+      const response = await fetch(`https://hosting-albertus-production.up.railway.app/api/profile/${userId()}/password`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
