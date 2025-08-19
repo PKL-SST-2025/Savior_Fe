@@ -41,9 +41,12 @@ interface ApiResponse<T> {
   };
 }
 
-const CATEGORY_COLORS = [
-  '#2563eb', '#4ade80', '#f472b6', '#facc15', '#8b5cf6',
-  '#f97316', '#ef4444', '#06b6d4', '#84cc16', '#d946ef',
+// Warna default AmCharts 5 (sesuai dengan yang digunakan chart)
+const AMCHART_DEFAULT_COLORS = [
+  '#67b7dc', '#7c73e6', '#e67e22', '#f1c40f', '#82ca9d',
+  '#8dd1e1', '#d084d0', '#ffb347', '#67b7dc', '#a4de6c',
+  '#ffc658', '#8884d8', '#82ca9d', '#a4de6c', '#ffc658',
+  '#ffb347', '#8dd1e1', '#d084d0', '#67b7dc', '#7c73e6'
 ];
 
 const MONTH_NAMES = [
@@ -58,12 +61,21 @@ const Statistik = () => {
   const [statistikData, setStatistikData] = createSignal<StatistikResponse | null>(null);
   const [loading, setLoading] = createSignal(true);
   const [error, setError] = createSignal("");
-  const [debugInfo, setDebugInfo] = createSignal("");
   const [filterApplied, setFilterApplied] = createSignal<any>(null);
   const [currentUserId, setCurrentUserId] = createSignal<string | null>(null);
-  const [chartCreated, setChartCreated] = createSignal(false);
-  const [sidebarOpen, setSidebarOpen] = createSignal(true);
+  const [sidebarOpen, setSidebarOpen] = createSignal(false);
+  const [isMobile, setIsMobile] = createSignal(false);
   const [user] = createSignal<any>(null);
+
+  // Check if screen is mobile size
+  const checkMobile = () => {
+    setIsMobile(window.innerWidth < 768);
+    if (window.innerWidth < 768) {
+      setSidebarOpen(false);
+    } else {
+      setSidebarOpen(true);
+    }
+  };
 
   // Function to get username
   const getUserName = () => {
@@ -82,7 +94,7 @@ const Statistik = () => {
         }
       }
     } catch (error) {
-      console.error('Error parsing user data:', error);
+      // Error parsing user data
     }
     
     return 'User';
@@ -142,7 +154,6 @@ const Statistik = () => {
 
   const simulateLogin = async () => {
     try {
-      setDebugInfo("🔄 Attempting login simulation...");
       
       const response = await fetch('https://hosting-albertus-production.up.railway.app/signin', {
         method: 'POST',
@@ -158,13 +169,12 @@ const Statistik = () => {
         localStorage.setItem('user_id', loginData.user_id);
         localStorage.setItem('userId', loginData.user_id);
         setCurrentUserId(loginData.user_id);
-        setDebugInfo(`✅ Login successful, saved user_id: ${loginData.user_id}`);
         
         setTimeout(() => fetchStatistik(), 500);
         return loginData.user_id;
       }
     } catch (error) {
-      setDebugInfo(`❌ Login simulation failed: ${error}`);
+      // Login simulation failed
     }
     return null;
   };
@@ -198,7 +208,6 @@ const Statistik = () => {
       }
 
       const apiUrl = buildApiUrl(userId);
-      setDebugInfo(`📊 Fetching data for user: ${userId}`);
       
       const statsResponse = await fetch(apiUrl, {
         method: 'GET',
@@ -216,17 +225,12 @@ const Statistik = () => {
         setStatistikData(statsResult.data);
         setFilterApplied(statsResult.filter_applied);
         
-        const categoryCount = statsResult.data.pengeluaran_per_kategori?.length || 0;
-        const totalSpending = statsResult.data.ringkasan?.total_pengeluaran || 0;
-        
-        setDebugInfo(`✅ Data loaded: ${categoryCount} categories, Total: Rp ${totalSpending.toLocaleString()}, Period: ${statsResult.filter_applied?.start_date} to ${statsResult.filter_applied?.end_date}`);
         setError("");
       } else {
         throw new Error(statsResult.message || "Failed to fetch statistics");
       }
 
     } catch (err) {
-      console.error('❌ Error fetching statistics:', err);
       if (err instanceof Error) {
         if (err.name === 'AbortError') {
           setError("Request timeout. Periksa koneksi server dan coba lagi.");
@@ -238,7 +242,6 @@ const Statistik = () => {
       } else {
         setError("Terjadi kesalahan yang tidak terduga");
       }
-      setDebugInfo(`❌ Fetch failed: ${err}`);
     } finally {
       setLoading(false);
     }
@@ -250,15 +253,8 @@ const Statistik = () => {
     
     // Pastikan chartDiv ada dan data sudah dimuat
     if (!chartDiv || loading() || !data) {
-      console.log('📊 Chart conditions not met:', { 
-        hasChartDiv: !!chartDiv, 
-        loading: loading(), 
-        hasData: !!data 
-      });
       return;
     }
-
-    console.log('📊 Creating chart with data:', data);
 
     // Dispose previous chart
     if (root) {
@@ -334,16 +330,11 @@ const Statistik = () => {
         }];
       }
 
-      console.log('📊 Final chart data:', chartData);
-
       // Set data to series
       series.data.setAll(chartData);
 
-      // Set colors
-      const colorSet = am5.ColorSet.new(root, {
-        colors: CATEGORY_COLORS.map(color => am5.color(color))
-      });
-      series.set("colors", colorSet);
+      // Biarkan AmCharts menggunakan warna default-nya
+      // Tidak perlu set custom colors
 
       // Add tooltip
       series.slices.template.set("tooltipText", 
@@ -368,12 +359,8 @@ const Statistik = () => {
       series.appear(1000, 100);
       chart.appear(1000, 100);
       
-      setChartCreated(true);
-      console.log('✅ Chart created successfully');
-      
     } catch (err) {
-      console.error('❌ Error creating chart:', err);
-      setDebugInfo(`Chart creation error: ${err}`);
+      // Error creating chart
     }
   };
 
@@ -426,8 +413,11 @@ const Statistik = () => {
 
   // ✅ FIXED: onMount yang lebih sederhana
   onMount(() => {
-    console.log('🔄 Component mounted');
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
     fetchStatistik();
+    
+    return () => window.removeEventListener('resize', checkMobile);
   });
 
   // ✅ FIXED: createEffect untuk chart creation
@@ -437,7 +427,6 @@ const Statistik = () => {
     
     // Hanya buat chart jika data sudah ada dan tidak loading
     if (data && !isLoading && chartDiv) {
-      console.log('📊 Creating chart - data available');
       // Tunggu sedikit untuk memastikan DOM ready
       setTimeout(() => {
         createChart();
@@ -454,8 +443,18 @@ const Statistik = () => {
 
   return (
     <div class="flex min-h-screen bg-[#f8f9fc]">
+      {/* Mobile Overlay */}
+      {isMobile() && sidebarOpen() && (
+        <div 
+          class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        ></div>
+      )}
+
       {/* Sidebar */}
-      <aside class={`${sidebarOpen() ? 'w-60' : 'w-20'} bg-[#1b2b59] text-white flex flex-col shrink-0 transition-all duration-300 ease-in-out fixed left-0 top-0 h-screen z-40`}>
+      <aside class={`${sidebarOpen() ? 'w-60' : 'w-20'} bg-[#1b2b59] text-white flex flex-col shrink-0 transition-all duration-300 ease-in-out fixed left-0 top-0 h-screen z-40 ${
+        isMobile() && !sidebarOpen() ? '-translate-x-full' : 'translate-x-0'
+      }`}>
         <div class={`${sidebarOpen() ? 'p-6 -ml-2' : 'p-3'} flex items-center ${sidebarOpen() ? '' : 'justify-center'}`}>
           <div class={`${sidebarOpen() ? 'w-20 h-20' : 'w-16 h-16'} flex items-center justify-center`}>
             <img src={saviorLogo} alt="SAVIOR Logo" class={`${sidebarOpen() ? 'w-20 h-20' : 'w-16 h-16'} object-contain`} />
@@ -557,18 +556,31 @@ const Statistik = () => {
       </aside>
 
       {/* Main Content */}
-      <div class={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${sidebarOpen() ? 'ml-60' : 'ml-20'}`}>
-        <header class="flex flex-col md:flex-row items-center justify-between mb-6 bg-white px-4 md:px-8 py-2 shadow-sm h-auto md:h-16 gap-4">
-          <div class="flex items-center gap-2">
-            {/* Hamburger Menu Button */}
+      <div class={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${
+        isMobile() ? 'ml-0' : sidebarOpen() ? 'ml-60' : 'ml-20'
+      }`}>
+        <header class="flex items-center justify-between bg-white px-4 py-3 shadow-sm">
+          <div class="flex items-center gap-3">
+            {/* Hamburger Menu Button - Mobile */}
             <button 
               onClick={() => setSidebarOpen(!sidebarOpen())}
-              class="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              class="p-2 rounded-lg hover:bg-gray-100 transition-colors md:hidden"
             >
               <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
+            
+            {/* Hamburger Menu Button - Desktop */}
+            <button 
+              onClick={() => setSidebarOpen(!sidebarOpen())}
+              class="p-2 rounded-lg hover:bg-gray-100 transition-colors hidden md:block"
+            >
+              <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            
             <h1 class="text-xl font-bold text-gray-800">STATISTIK</h1>
           </div>
           <div class="flex items-center gap-4 w-full md:w-auto justify-end">
@@ -679,13 +691,6 @@ const Statistik = () => {
               )}
             </div>
 
-            {debugInfo() && (
-              <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded mb-4 text-sm">
-                <strong>Debug Info:</strong> {debugInfo()}
-                {chartCreated() && <span class="ml-2 text-green-600">📊 Chart: Created</span>}
-              </div>
-            )}
-
             {loading() ? (
               <div class="flex justify-center items-center py-8">
                 <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -720,11 +725,11 @@ const Statistik = () => {
                 <div class="bg-white rounded-lg shadow p-4 md:p-6">
                   <h3 class="text-lg font-bold text-[#2f2f4f] mb-4">Distribusi Pengeluaran per Kategori</h3>
                   <div class="flex justify-center">
-                    <div class="w-full max-w-md">
+                    <div class="w-full max-w-lg">
                       <div
                         ref={chartDiv}
-                        style="width:100%;height:400px;min-height:400px;"
-                        class="bg-white"
+                        style="width:100%;height:300px;min-height:300px;"
+                        class={`bg-white ${isMobile() ? 'h-72' : 'h-96'}`}
                       ></div>
                       
                       {!hasActualData() && (
@@ -743,22 +748,22 @@ const Statistik = () => {
 
                 {statistikData() && (
                   <div class="space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div class="bg-white rounded-lg shadow p-6 text-center">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div class="bg-white rounded-lg shadow p-4 sm:p-6 text-center">
                         <h4 class="text-sm font-medium text-gray-500 mb-2">Total Pengeluaran</h4>
-                        <p class="text-2xl font-bold text-blue-600">
+                        <p class="text-xl sm:text-2xl font-bold text-blue-600">
                           {formatCurrency(statistikData()!.ringkasan.total_pengeluaran)}
                         </p>
                       </div>
-                      <div class="bg-white rounded-lg shadow p-6 text-center">
+                      <div class="bg-white rounded-lg shadow p-4 sm:p-6 text-center">
                         <h4 class="text-sm font-medium text-gray-500 mb-2">Rata-rata Harian</h4>
-                        <p class="text-2xl font-bold text-green-600">
+                        <p class="text-xl sm:text-2xl font-bold text-green-600">
                           {formatCurrency(Math.round(statistikData()!.ringkasan.rata_rata_harian))}
                         </p>
                       </div>
-                      <div class="bg-white rounded-lg shadow p-6 text-center">
+                      <div class="bg-white rounded-lg shadow p-4 sm:p-6 text-center sm:col-span-2 lg:col-span-1">
                         <h4 class="text-sm font-medium text-gray-500 mb-2">Total Transaksi</h4>
-                        <p class="text-2xl font-bold text-purple-600">
+                        <p class="text-xl sm:text-2xl font-bold text-purple-600">
                           {statistikData()!.ringkasan.total_transaksi}
                         </p>
                       </div>
@@ -768,21 +773,25 @@ const Statistik = () => {
                       <div class="bg-white rounded-lg shadow p-4 md:p-6">
                         <h3 class="text-lg font-bold text-[#2f2f4f] mb-4">Rincian per Kategori</h3>
                         <div class="space-y-3">
-                          {statistikData()!.pengeluaran_per_kategori.map((item, index) => (
-                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                              <div class="flex items-center gap-3">
-                                <span
-                                  class="w-4 h-4 rounded-full flex-shrink-0"
-                                  style={`background-color: ${CATEGORY_COLORS[index % CATEGORY_COLORS.length]};`}
-                                ></span>
-                                <span class="font-medium text-gray-700">{item.kategori_nama}</span>
+                          {(() => {
+                            // Filter kategori yang memiliki pengeluaran > 0, sama seperti di chart
+                            const validCategories = statistikData()!.pengeluaran_per_kategori.filter(item => item.total_pengeluaran > 0);
+                            return validCategories.map((item, index) => (
+                              <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                <div class="flex items-center gap-3">
+                                  <span
+                                    class="w-4 h-4 rounded-full flex-shrink-0"
+                                    style={`background-color: ${AMCHART_DEFAULT_COLORS[index % AMCHART_DEFAULT_COLORS.length]};`}
+                                  ></span>
+                                  <span class="font-medium text-gray-700">{item.kategori_nama}</span>
+                                </div>
+                                <div class="text-right">
+                                  <div class="font-bold text-gray-900">{formatCurrency(item.total_pengeluaran)}</div>
+                                  <div class="text-sm text-gray-500">({item.persentase.toFixed(1)}%)</div>
+                                </div>
                               </div>
-                              <div class="text-right">
-                                <div class="font-bold text-gray-900">{formatCurrency(item.total_pengeluaran)}</div>
-                                <div class="text-sm text-gray-500">({item.persentase.toFixed(1)}%)</div>
-                              </div>
-                            </div>
-                          ))}
+                            ));
+                          })()}
                         </div>
                       </div>
                     ) : (

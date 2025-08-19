@@ -22,8 +22,19 @@ const Kategori = () => {
   const [editingId, setEditingId] = createSignal<number | null>(null);
   const [loading, setLoading] = createSignal(false);
   const [error, setError] = createSignal("");
-  const [sidebarOpen, setSidebarOpen] = createSignal(true);
+  const [sidebarOpen, setSidebarOpen] = createSignal(false);
+  const [isMobile, setIsMobile] = createSignal(false);
   const [user] = createSignal<any>(null);
+
+  // Check if screen is mobile size
+  const checkMobile = () => {
+    setIsMobile(window.innerWidth < 768);
+    if (window.innerWidth < 768) {
+      setSidebarOpen(false);
+    } else {
+      setSidebarOpen(true);
+    }
+  };
 
   // Function to get username
   const getUserName = () => {
@@ -248,13 +259,27 @@ const Kategori = () => {
 
   // Load categories on component mount
   onMount(() => {
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
     fetchKategori();
+    
+    return () => window.removeEventListener('resize', checkMobile);
   });
 
   return (
     <div class="flex min-h-screen bg-[#f8f9fc]">
+      {/* Mobile Overlay */}
+      {isMobile() && sidebarOpen() && (
+        <div 
+          class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        ></div>
+      )}
+
       {/* Sidebar */}
-      <aside class={`${sidebarOpen() ? 'w-60' : 'w-20'} bg-[#1b2b59] text-white flex flex-col shrink-0 transition-all duration-300 ease-in-out fixed left-0 top-0 h-screen z-40`}>
+      <aside class={`${sidebarOpen() ? 'w-60' : 'w-20'} bg-[#1b2b59] text-white flex flex-col shrink-0 transition-all duration-300 ease-in-out fixed left-0 top-0 h-screen z-40 ${
+        isMobile() && !sidebarOpen() ? '-translate-x-full' : 'translate-x-0'
+      }`}>
         <div class={`${sidebarOpen() ? 'p-6 -ml-2' : 'p-3'} flex items-center ${sidebarOpen() ? '' : 'justify-center'}`}>
           <div class={`${sidebarOpen() ? 'w-20 h-20' : 'w-16 h-16'} flex items-center justify-center`}>
             <img src={saviorLogo} alt="SAVIOR Logo" class={`${sidebarOpen() ? 'w-20 h-20' : 'w-16 h-16'} object-contain`} />
@@ -356,19 +381,32 @@ const Kategori = () => {
       </aside>
 
       {/* Main Content */}
-      <div class={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${sidebarOpen() ? 'ml-60' : 'ml-20'}`}>
+      <div class={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${
+        isMobile() ? 'ml-0' : sidebarOpen() ? 'ml-60' : 'ml-20'
+      }`}>
         {/* Header */}
-        <header class="flex flex-col md:flex-row items-center justify-between mb-6 bg-white px-4 md:px-8 py-2 shadow-sm h-auto md:h-16 gap-4">
-          <div class="flex items-center gap-2">
-            {/* Hamburger Menu Button */}
+        <header class="flex items-center justify-between bg-white px-4 py-3 shadow-sm">
+          <div class="flex items-center gap-3">
+            {/* Hamburger Menu Button - Mobile */}
             <button 
               onClick={() => setSidebarOpen(!sidebarOpen())}
-              class="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              class="p-2 rounded-lg hover:bg-gray-100 transition-colors md:hidden"
             >
               <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
+            
+            {/* Hamburger Menu Button - Desktop */}
+            <button 
+              onClick={() => setSidebarOpen(!sidebarOpen())}
+              class="p-2 rounded-lg hover:bg-gray-100 transition-colors hidden md:block"
+            >
+              <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            
             <h1 class="text-xl font-bold text-gray-800">KATEGORI</h1>
           </div>
           <div class="flex items-center gap-4 w-full md:w-auto justify-end">
@@ -443,18 +481,22 @@ const Kategori = () => {
                     <For each={kategoriList()}>
                       {(kategori, index) => (
                         <tr class="border-b border-gray-200">
-                          <td class="py-4 text-gray-700">{kategori.nama}</td>
-                          <td
-                            class="py-4 text-center font-bold text-[#2f2f4f] cursor-pointer hover:text-blue-600 transition-colors"
-                            onClick={() => handleEdit(index())}
-                          >
-                            Edit
+                          <td class="py-4 text-gray-700 text-sm sm:text-base">{kategori.nama}</td>
+                          <td class="py-4 text-center">
+                            <button
+                              onClick={() => handleEdit(index())}
+                              class="px-3 py-1 bg-blue-500 text-white rounded-full text-xs sm:text-sm font-medium hover:bg-blue-600 transition-colors"
+                            >
+                              Edit
+                            </button>
                           </td>
-                          <td
-                            class="py-4 text-center font-bold text-red-500 cursor-pointer hover:text-red-700 transition-colors"
-                            onClick={() => handleDelete(index())}
-                          >
-                            Delete
+                          <td class="py-4 text-center">
+                            <button
+                              onClick={() => handleDelete(index())}
+                              class="px-3 py-1 bg-red-500 text-white rounded-full text-xs sm:text-sm font-medium hover:bg-red-600 transition-colors"
+                            >
+                              Delete
+                            </button>
                           </td>
                         </tr>
                       )}

@@ -58,12 +58,45 @@ const Dashboard: Component = () => {
   const [loading, setLoading] = createSignal(true);
   const [error, setError] = createSignal("");
   const [forceUpdate, setForceUpdate] = createSignal(0);
-  const [sidebarOpen, setSidebarOpen] = createSignal(true);
+  const [sidebarOpen, setSidebarOpen] = createSignal(false); // Default false for mobile
+  const [isMobile, setIsMobile] = createSignal(false);
   
   // Reference untuk chart AmCharts
   let chartDiv: HTMLElement | undefined;
   let root: am5.Root | undefined;
   let chart: am5xy.XYChart | undefined;
+
+  // Check if screen is mobile size
+  const checkMobile = () => {
+    setIsMobile(window.innerWidth < 768);
+    if (window.innerWidth < 768) {
+      setSidebarOpen(false);
+    } else {
+      setSidebarOpen(true);
+    }
+  };
+
+  onMount(() => {
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    // Load initial data
+    fetchDashboardData();
+    fetchUserData();
+    
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+      if (root) {
+        root.dispose();
+      }
+    };
+  });
+
+  onCleanup(() => {
+    if (root) {
+      root.dispose();
+    }
+  });
 
   // Get user ID
   const getUserId = () => {
@@ -559,8 +592,18 @@ const Dashboard: Component = () => {
 
   return (
     <div class="flex min-h-screen bg-[#f8f9fc]">
+      {/* Mobile Overlay */}
+      {isMobile() && sidebarOpen() && (
+        <div 
+          class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        ></div>
+      )}
+      
       {/* Sidebar */}
-      <aside class={`${sidebarOpen() ? 'w-60' : 'w-20'} bg-[#1b2b59] text-white flex flex-col shrink-0 transition-all duration-300 ease-in-out fixed left-0 top-0 h-screen z-40`}>
+      <aside class={`${sidebarOpen() ? 'w-60' : 'w-20'} bg-[#1b2b59] text-white flex flex-col shrink-0 transition-all duration-300 ease-in-out fixed left-0 top-0 h-screen z-40 ${
+        isMobile() && !sidebarOpen() ? '-translate-x-full' : 'translate-x-0'
+      }`}>
         <div class={`${sidebarOpen() ? 'p-6 -ml-2' : 'p-3'} flex items-center ${sidebarOpen() ? '' : 'justify-center'}`}>
           <div class={`${sidebarOpen() ? 'w-20 h-20' : 'w-16 h-16'} flex items-center justify-center`}>
             <img src={saviorLogo} alt="SAVIOR Logo" class={`${sidebarOpen() ? 'w-20 h-20' : 'w-16 h-16'} object-contain`} />
@@ -573,7 +616,7 @@ const Dashboard: Component = () => {
             <li>
               <a href="/TambahTransaksi" class={`flex items-center ${sidebarOpen() ? 'gap-3 px-4' : 'justify-center px-2'} py-3 rounded-lg hover:bg-[#314574] transition-colors group relative`}>
                 <img src={tambahTransaksiIcon} alt="Tambah Transaksi" class="w-5 h-5 flex-shrink-0" />
-                {sidebarOpen() && <span>Tambah Transaksi</span>}
+                {sidebarOpen() && <span class="text-sm sm:text-base">Tambah Transaksi</span>}
                 {!sidebarOpen() && (
                   <div class="absolute left-full ml-2 bg-gray-800 text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap pointer-events-none">
                     Tambah Transaksi
@@ -584,7 +627,7 @@ const Dashboard: Component = () => {
             <li>
               <a href="/History" class={`flex items-center ${sidebarOpen() ? 'gap-3 px-4' : 'justify-center px-2'} py-3 rounded-lg hover:bg-[#314574] transition-colors group relative`}>
                 <img src={riwayatIcon} alt="Riwayat" class="w-5 h-5 flex-shrink-0" />
-                {sidebarOpen() && <span>Riwayat</span>}
+                {sidebarOpen() && <span class="text-sm sm:text-base">Riwayat</span>}
                 {!sidebarOpen() && (
                   <div class="absolute left-full ml-2 bg-gray-800 text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap pointer-events-none">
                     Riwayat
@@ -595,7 +638,7 @@ const Dashboard: Component = () => {
             <li>
               <a href="/dashboard" class={`flex items-center ${sidebarOpen() ? 'gap-3 px-4' : 'justify-center px-2'} py-3 rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg group relative`}>
                 <img src={dashboardIcon} alt="Dashboard" class="w-5 h-5 flex-shrink-0" />
-                {sidebarOpen() && <span>Dashboard</span>}
+                {sidebarOpen() && <span class="text-sm sm:text-base">Dashboard</span>}
                 {!sidebarOpen() && (
                   <div class="absolute left-full ml-2 bg-gray-800 text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap pointer-events-none">
                     Dashboard
@@ -611,7 +654,7 @@ const Dashboard: Component = () => {
             <li>
               <a href="/Budget" class={`flex items-center ${sidebarOpen() ? 'gap-3 px-4' : 'justify-center px-2'} py-3 rounded-lg hover:bg-[#314574] transition-colors group relative`}>
                 <img src={budgetIcon} alt="Budget" class="w-5 h-5 flex-shrink-0" />
-                {sidebarOpen() && <span>Budget</span>}
+                {sidebarOpen() && <span class="text-sm sm:text-base">Budget</span>}
                 {!sidebarOpen() && (
                   <div class="absolute left-full ml-2 bg-gray-800 text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap pointer-events-none">
                     Budget
@@ -622,7 +665,7 @@ const Dashboard: Component = () => {
             <li>
               <a href="/Kategori" class={`flex items-center ${sidebarOpen() ? 'gap-3 px-4' : 'justify-center px-2'} py-3 rounded-lg hover:bg-[#314574] transition-colors group relative`}>
                 <img src={kategoriIcon} alt="Kategori" class="w-5 h-5 flex-shrink-0" />
-                {sidebarOpen() && <span>Kategori</span>}
+                {sidebarOpen() && <span class="text-sm sm:text-base">Kategori</span>}
                 {!sidebarOpen() && (
                   <div class="absolute left-full ml-2 bg-gray-800 text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap pointer-events-none">
                     Kategori
@@ -633,7 +676,7 @@ const Dashboard: Component = () => {
             <li>
               <a href="/Statistik" class={`flex items-center ${sidebarOpen() ? 'gap-3 px-4' : 'justify-center px-2'} py-3 rounded-lg hover:bg-[#314574] transition-colors group relative`}>
                 <img src={statistikIcon} alt="Statistik" class="w-5 h-5 flex-shrink-0" />
-                {sidebarOpen() && <span>Statistik</span>}
+                {sidebarOpen() && <span class="text-sm sm:text-base">Statistik</span>}
                 {!sidebarOpen() && (
                   <div class="absolute left-full ml-2 bg-gray-800 text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap pointer-events-none">
                     Statistik
@@ -649,7 +692,7 @@ const Dashboard: Component = () => {
             <li>
               <a href="/Profile" class={`flex items-center ${sidebarOpen() ? 'gap-3 px-4' : 'justify-center px-2'} py-3 rounded-lg hover:bg-[#314574] transition-colors group relative`}>
                 <img src={profileIcon} alt="Profile" class="w-5 h-5 flex-shrink-0" />
-                {sidebarOpen() && <span>Profile</span>}
+                {sidebarOpen() && <span class="text-sm sm:text-base">Profile</span>}
                 {!sidebarOpen() && (
                   <div class="absolute left-full ml-2 bg-gray-800 text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity z-50 whitespace-nowrap pointer-events-none">
                     Profile
@@ -662,81 +705,102 @@ const Dashboard: Component = () => {
       </aside>
 
       {/* Main Content */}
-      <div class={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${sidebarOpen() ? 'ml-60' : 'ml-20'}`}>
-        <header class="flex flex-col md:flex-row items-center justify-between mb-6 bg-white px-4 md:px-8 py-2 shadow-sm h-auto md:h-16 gap-4">
-          <div class="flex items-center gap-2">
-            {/* Hamburger Menu Button */}
+      <div class={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${
+        isMobile() ? 'ml-0' : sidebarOpen() ? 'ml-60' : 'ml-20'
+      }`}>
+        <header class="flex items-center justify-between bg-white px-4 py-3 shadow-sm">
+          <div class="flex items-center gap-3">
+            {/* Hamburger Menu Button - Mobile */}
             <button 
               onClick={() => setSidebarOpen(!sidebarOpen())}
-              class="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              class="p-2 rounded-lg hover:bg-gray-100 transition-colors md:hidden"
             >
               <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
+            
+            {/* Hamburger Menu Button - Desktop */}
+            <button 
+              onClick={() => setSidebarOpen(!sidebarOpen())}
+              class="p-2 rounded-lg hover:bg-gray-100 transition-colors hidden md:block"
+            >
+              <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            
+            <h1 class="text-xl font-bold text-gray-800">DASHBOARD</h1>
           </div>
-          <div class="flex items-center gap-4 w-full md:w-auto justify-end">
-            <div class="relative w-full max-w-xs">
+          
+          <div class="flex items-center gap-3 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end">
+            <div class="relative flex-1 sm:flex-none sm:w-full sm:max-w-xs">
               <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4-4m0 0A7 7 0 104 4a7 7 0 0113 13z" />
                 </svg>
               </span>
-              <input type="text" placeholder="Search" class="pl-10 pr-4 py-2 rounded-full bg-[#f6f7fb] text-gray-500 focus:outline-none w-full" />
+              <input type="text" placeholder="Search" class="pl-8 sm:pl-10 pr-4 py-2 rounded-full bg-[#f6f7fb] text-gray-500 focus:outline-none w-full text-sm" />
             </div>
-            <div class="relative">
-              <button class="focus:outline-none">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-[#8b8fa7]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                </svg>
-                <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 font-bold">9</span>
-              </button>
-            </div>
-            <div class="relative group">
-              <div class="w-8 h-8 rounded-full bg-blue-400 flex items-center justify-center text-white font-bold text-lg cursor-pointer">
-                {getUserName().charAt(0).toUpperCase()}
+            
+            <div class="flex items-center gap-3">
+              <div class="relative">
+                <button class="focus:outline-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 text-[#8b8fa7]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                  </svg>
+                  <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 font-bold">9</span>
+                </button>
               </div>
-              {/* Dropdown menu */}
-              <div class="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                <div class="py-2">
-                  <div class="px-4 py-2 text-sm text-gray-700 border-b">
-                    <div class="font-medium">{getUserName()}</div>
-                    <div class="text-gray-500">User Account</div>
+              
+              <div class="relative group">
+                <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-400 flex items-center justify-center text-white font-bold text-sm sm:text-lg cursor-pointer">
+                  {getUserName().charAt(0).toUpperCase()}
+                </div>
+                {/* Dropdown menu */}
+                <div class="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  <div class="py-2">
+                    <div class="px-4 py-2 text-sm text-gray-700 border-b">
+                      <div class="font-medium">{getUserName()}</div>
+                      <div class="text-gray-500">User Account</div>
+                    </div>
+                    <button
+                      onClick={logout}
+                      class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                      Sign Out
+                    </button>
                   </div>
-                  <button
-                    onClick={logout}
-                    class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                  >
-                    Sign Out
-                  </button>
                 </div>
               </div>
             </div>
           </div>
         </header>
 
-        {/* Status Messages - Only errors shown */}
-        {error() && (
-          <div class="bg-red-100 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded mb-4 mx-4 shadow-sm">
-            <div class="flex items-center">
-              <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-              </svg>
-              <div>
-                <p class="font-bold">Error</p>
-                <p class="text-sm">{error()}</p>
+        {/* Main Content Container */}
+        <div class="flex-1 overflow-auto">
+          {/* Status Messages - Only errors shown */}
+          {error() && (
+            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 px-3 sm:px-4 py-3 rounded mb-4 mx-3 sm:mx-4 shadow-sm">
+              <div class="flex items-start sm:items-center">
+                <svg class="w-5 h-5 mr-3 mt-0.5 sm:mt-0 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                </svg>
+                <div class="flex-1 min-w-0">
+                  <p class="font-bold text-sm sm:text-base">Error</p>
+                  <p class="text-xs sm:text-sm">{error()}</p>
+                </div>
+              </div>
+              <div class="mt-3 space-x-2">
+                <button 
+                  class="bg-red-600 text-white px-3 py-1 rounded text-xs sm:text-sm hover:bg-red-700 transition-colors"
+                  onClick={fetchDashboardData}
+                >
+                  Coba Lagi
+                </button>
               </div>
             </div>
-            <div class="mt-3 space-x-2">
-              <button 
-                class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition-colors"
-                onClick={fetchDashboardData}
-              >
-                Coba Lagi
-              </button>
-            </div>
-          </div>
-        )}
+          )}
 
         {loading() ? (
           <div class="flex justify-center items-center py-8">
@@ -746,11 +810,11 @@ const Dashboard: Component = () => {
         ) : (
           <>
             {/* ✅ FIXED: Welcome Card with reactive username */}
-            <div class="bg-white shadow rounded p-4 mb-6 mx-4">
-              <p class="text-xl">
+            <div class="bg-white shadow rounded p-3 sm:p-4 mb-4 sm:mb-6 mx-3 sm:mx-4">
+              <p class="text-lg sm:text-xl">
                 {getGreeting()}, <strong>{getUserName()}</strong>
               </p>
-              <p>
+              <p class="text-sm sm:text-base">
                 Pengeluaran Bulan ini : <span class="text-red-600 font-bold">
                   {data() ? formatCurrency(data()!.total_bulan_ini) : 'Rp 0'}
                 </span>
@@ -759,10 +823,10 @@ const Dashboard: Component = () => {
             </div>
 
             {/* Chart & Transactions */}
-            <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6 mx-4">
+            <div class="grid grid-cols-1 xl:grid-cols-5 gap-4 sm:gap-6 mb-4 sm:mb-6 mx-3 sm:mx-4">
               {/* Chart */}
-              <div class="bg-white shadow rounded p-6 lg:col-span-3">
-                <h2 class="text-center font-bold mb-6 text-lg">
+              <div class="bg-white shadow rounded p-4 sm:p-6 xl:col-span-3 order-2 xl:order-1">
+                <h2 class="text-center font-bold mb-4 sm:mb-6 text-base sm:text-lg">
                   GRAFIK PENGELUARAN MINGGUAN
                 </h2>
                 {/* AmCharts 5 Chart Container */}
@@ -772,10 +836,15 @@ const Dashboard: Component = () => {
                     
                     if (el) {
                       // Pastikan container memiliki dimensi yang jelas
-                      el.style.height = "400px";
+                      el.style.height = "300px";
                       el.style.width = "100%";
                       el.style.position = "relative";
                       el.style.overflow = "visible";
+                      
+                      // Responsive height
+                      if (window.innerWidth >= 640) {
+                        el.style.height = "400px";
+                      }
                       
                       // Jika data sudah ada tapi chart belum dibuat, buat chart di sini
                       if (data() && data()!.pengeluaran_mingguan && data()!.pengeluaran_mingguan.length > 0) {
@@ -786,17 +855,17 @@ const Dashboard: Component = () => {
                       }
                     }
                   }} 
-                  class="w-full h-96 border border-gray-200 rounded bg-white"
+                  class="w-full h-72 sm:h-96 border border-gray-200 rounded bg-white"
                   id="chartdiv"
-                  style="min-height: 380px; position: relative;"
+                  style="min-height: 280px; position: relative;"
                 >
                   {!data() || !data()!.pengeluaran_mingguan || data()!.pengeluaran_mingguan.length === 0 ? (
                     <div class="flex items-center justify-center h-full w-full">
                       <div class="text-center text-gray-500">
-                        <svg class="mx-auto h-12 w-12 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="mx-auto h-8 w-8 sm:h-12 sm:w-12 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                         </svg>
-                        <p>Chart tidak tersedia</p>
+                        <p class="text-sm sm:text-base">Chart tidak tersedia</p>
                         <p class="text-xs mt-1">Tidak ada data pengeluaran</p>
                       </div>
                     </div>
@@ -805,22 +874,22 @@ const Dashboard: Component = () => {
               </div>
 
               {/* Transactions */}
-              <div class="bg-white shadow rounded p-6 lg:col-span-2">
+              <div class="bg-white shadow rounded p-4 sm:p-6 xl:col-span-2 order-1 xl:order-2">
                 <div class="flex justify-between items-center mb-4">
-                  <h2 class="font-bold text-lg">TRANSAKSI TERAKHIR</h2>
+                  <h2 class="font-bold text-base sm:text-lg">TRANSAKSI TERAKHIR</h2>
                   <span class="text-xs text-gray-500">
                     {data()?.transaksi_terakhir?.length || 0} transaksi
                   </span>
                 </div>
-                <div class="space-y-3 max-h-80 overflow-y-auto">
+                <div class="space-y-3 max-h-60 sm:max-h-80 overflow-y-auto">
                   {data()?.transaksi_terakhir && data()!.transaksi_terakhir.length > 0 ? (
                     <For each={data()!.transaksi_terakhir}>
                       {(transaksi) => (
                         <div class="border-b border-gray-100 pb-2 hover:bg-gray-50 px-2 py-1 rounded">
-                          <div class="flex justify-between items-start">
+                          <div class="flex justify-between items-start gap-2">
                             <div class="flex-1 min-w-0">
-                              <div class="font-semibold text-gray-800 text-sm truncate">
-                                {truncateDescription(transaksi.deskripsi, 25)}
+                              <div class="font-semibold text-gray-800 text-xs sm:text-sm truncate">
+                                {truncateDescription(transaksi.deskripsi, window.innerWidth < 640 ? 15 : 25)}
                               </div>
                               <div class="text-xs text-gray-600 mt-1">
                                 <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
@@ -831,8 +900,8 @@ const Dashboard: Component = () => {
                                 {new Date(transaksi.tanggal).toLocaleDateString('id-ID')}
                               </div>
                             </div>
-                            <div class="text-right">
-                              <div class="font-bold text-red-600 text-sm">
+                            <div class="text-right flex-shrink-0">
+                              <div class="font-bold text-red-600 text-xs sm:text-sm">
                                 {formatCurrency(transaksi.jumlah)}
                               </div>
                             </div>
@@ -841,11 +910,11 @@ const Dashboard: Component = () => {
                       )}
                     </For>
                   ) : (
-                    <div class="text-center text-gray-500 py-8">
-                      <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div class="text-center text-gray-500 py-6 sm:py-8">
+                      <svg class="mx-auto h-8 w-8 sm:h-12 sm:w-12 text-gray-400 mb-2 sm:mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
-                      <p>Belum ada transaksi</p>
+                      <p class="text-sm sm:text-base">Belum ada transaksi</p>
                     </div>
                   )}
                 </div>
@@ -853,61 +922,61 @@ const Dashboard: Component = () => {
             </div>
 
             {/* Statistics Section */}
-            <div class="bg-white shadow rounded p-6 mx-4 mb-4">
-              <h2 class="text-center font-bold mb-6 text-lg">STATISTIK PENGELUARAN</h2>
+            <div class="bg-white shadow rounded p-4 sm:p-6 mx-3 sm:mx-4 mb-4">
+              <h2 class="text-center font-bold mb-4 sm:mb-6 text-base sm:text-lg">STATISTIK PENGELUARAN</h2>
               <div class="overflow-x-auto">
-                  <table class="w-full border-collapse border border-gray-300">
+                  <table class="w-full border-collapse border border-gray-300 text-xs sm:text-sm">
                     <thead>
                       <tr class="bg-gray-50">
-                        <th class="border border-gray-300 px-4 py-2 text-left font-semibold">KATEGORI</th>
-                        <th class="border border-gray-300 px-4 py-2 text-left font-semibold">HARIAN</th>
-                        <th class="border border-gray-300 px-4 py-2 text-left font-semibold">BULANAN</th>
+                        <th class="border border-gray-300 px-2 sm:px-4 py-2 text-left font-semibold">KATEGORI</th>
+                        <th class="border border-gray-300 px-2 sm:px-4 py-2 text-left font-semibold">HARIAN</th>
+                        <th class="border border-gray-300 px-2 sm:px-4 py-2 text-left font-semibold">BULANAN</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr class="hover:bg-gray-50">
-                        <td class="border border-gray-300 px-4 py-2">Total</td>
-                        <td class="border border-gray-300 px-4 py-2">{data() ? formatCurrency(data()!.total_hari_ini) : 'Rp 0'}</td>
-                        <td class="border border-gray-300 px-4 py-2">{data() ? formatCurrency(data()!.total_bulan_ini) : 'Rp 0'}</td>
+                        <td class="border border-gray-300 px-2 sm:px-4 py-2">Total</td>
+                        <td class="border border-gray-300 px-2 sm:px-4 py-2">{data() ? formatCurrency(data()!.total_hari_ini) : 'Rp 0'}</td>
+                        <td class="border border-gray-300 px-2 sm:px-4 py-2">{data() ? formatCurrency(data()!.total_bulan_ini) : 'Rp 0'}</td>
                       </tr>
                       <tr class="hover:bg-gray-50">
-                        <td class="border border-gray-300 px-4 py-2">Tertinggi</td>
-                        <td class="border border-gray-300 px-4 py-2">{data() ? formatCurrency(data()!.tertinggi_hari_ini) : 'Rp 0'}</td>
-                        <td class="border border-gray-300 px-4 py-2">{data() ? formatCurrency(data()!.tertinggi_bulan_ini) : 'Rp 0'}</td>
+                        <td class="border border-gray-300 px-2 sm:px-4 py-2">Tertinggi</td>
+                        <td class="border border-gray-300 px-2 sm:px-4 py-2">{data() ? formatCurrency(data()!.tertinggi_hari_ini) : 'Rp 0'}</td>
+                        <td class="border border-gray-300 px-2 sm:px-4 py-2">{data() ? formatCurrency(data()!.tertinggi_bulan_ini) : 'Rp 0'}</td>
                       </tr>
                       <tr class="hover:bg-gray-50">
-                        <td class="border border-gray-300 px-4 py-2">Terendah</td>
-                        <td class="border border-gray-300 px-4 py-2">{data() ? formatCurrency(data()!.terendah_hari_ini) : 'Rp 0'}</td>
-                        <td class="border border-gray-300 px-4 py-2">{data() ? formatCurrency(data()!.terendah_bulan_ini) : 'Rp 0'}</td>
+                        <td class="border border-gray-300 px-2 sm:px-4 py-2">Terendah</td>
+                        <td class="border border-gray-300 px-2 sm:px-4 py-2">{data() ? formatCurrency(data()!.terendah_hari_ini) : 'Rp 0'}</td>
+                        <td class="border border-gray-300 px-2 sm:px-4 py-2">{data() ? formatCurrency(data()!.terendah_bulan_ini) : 'Rp 0'}</td>
                       </tr>
                     </tbody>
                   </table>
               </div>
               
               {/* Quick stats cards */}
-              <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-                <div class="bg-blue-50 p-4 rounded-lg text-center">
+              <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-4 sm:mt-6">
+                <div class="bg-blue-50 p-3 sm:p-4 rounded-lg text-center">
                   <div class="text-xs text-gray-600 uppercase">Rata-rata Harian</div>
-                  <div class="text-lg font-bold text-blue-600">
+                  <div class="text-sm sm:text-lg font-bold text-blue-600">
                     {data() && data()!.total_bulan_ini > 0 ? formatToMillions(data()!.total_bulan_ini / 30) : '0'}
                   </div>
                 </div>
-                <div class="bg-green-50 p-4 rounded-lg text-center">
+                <div class="bg-green-50 p-3 sm:p-4 rounded-lg text-center">
                   <div class="text-xs text-gray-600 uppercase">Proyeksi 30 Hari</div>
-                  <div class="text-lg font-bold text-green-600">
+                  <div class="text-sm sm:text-lg font-bold text-green-600">
                     {data() && data()!.total_hari_ini > 0 ? formatToMillions(data()!.total_hari_ini * 30) : '0'}
                   </div>
                   <div class="text-xs text-gray-500 mt-1">Berdasarkan hari ini</div>
                 </div>
-                <div class="bg-yellow-50 p-4 rounded-lg text-center">
+                <div class="bg-yellow-50 p-3 sm:p-4 rounded-lg text-center">
                   <div class="text-xs text-gray-600 uppercase">Sisa Bulan</div>
-                  <div class="text-lg font-bold text-yellow-600">
+                  <div class="text-sm sm:text-lg font-bold text-yellow-600">
                     {30 - new Date().getDate()} hari
                   </div>
                 </div>
-                <div class="bg-purple-50 p-4 rounded-lg text-center">
+                <div class="bg-purple-50 p-3 sm:p-4 rounded-lg text-center">
                   <div class="text-xs text-gray-600 uppercase">Transaksi</div>
-                  <div class="text-lg font-bold text-purple-600">
+                  <div class="text-sm sm:text-lg font-bold text-purple-600">
                     {data()?.transaksi_terakhir?.length || 0}
                   </div>
                 </div>
@@ -915,6 +984,7 @@ const Dashboard: Component = () => {
             </div>
           </>
         )}
+        </div>
       </div>
     </div>
   );

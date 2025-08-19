@@ -31,7 +31,18 @@ const Profile = () => {
   const [currentPassword, setCurrentPassword] = createSignal("");
   const [newPassword, setNewPassword] = createSignal("");
   const [confirmPassword, setConfirmPassword] = createSignal("");
-  const [sidebarOpen, setSidebarOpen] = createSignal(true);
+  const [sidebarOpen, setSidebarOpen] = createSignal(false);
+  const [isMobile, setIsMobile] = createSignal(false);
+
+  // Check if screen is mobile size
+  const checkMobile = () => {
+    setIsMobile(window.innerWidth < 768);
+    if (window.innerWidth < 768) {
+      setSidebarOpen(false);
+    } else {
+      setSidebarOpen(true);
+    }
+  };
 
   // Function to get username for avatar
   const getUserName = () => {
@@ -41,6 +52,9 @@ const Profile = () => {
 
   // Load profile data on mount
   onMount(async () => {
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
     const storedUserId = localStorage.getItem('user_id');
     
     if (!storedUserId) {
@@ -51,6 +65,8 @@ const Profile = () => {
     setUserId(storedUserId);
     setLoading(true);
     await loadProfile(storedUserId);
+    
+    return () => window.removeEventListener('resize', checkMobile);
   });
 
   const loadProfile = async (userIdParam: string) => {
@@ -212,8 +228,18 @@ const Profile = () => {
 
   return (
     <div class="flex min-h-screen bg-[#f8f9fc]">
+      {/* Mobile Overlay */}
+      {isMobile() && sidebarOpen() && (
+        <div 
+          class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        ></div>
+      )}
+
       {/* Sidebar */}
-      <aside class={`${sidebarOpen() ? 'w-60' : 'w-20'} bg-[#1b2b59] text-white flex flex-col shrink-0 transition-all duration-300 ease-in-out fixed left-0 top-0 h-screen z-40`}>
+      <aside class={`${sidebarOpen() ? 'w-60' : 'w-20'} bg-[#1b2b59] text-white flex flex-col shrink-0 transition-all duration-300 ease-in-out fixed left-0 top-0 h-screen z-40 ${
+        isMobile() && !sidebarOpen() ? '-translate-x-full' : 'translate-x-0'
+      }`}>
         <div class={`${sidebarOpen() ? 'p-6 -ml-2' : 'p-3'} flex items-center ${sidebarOpen() ? '' : 'justify-center'}`}>
           <div class={`${sidebarOpen() ? 'w-20 h-20' : 'w-16 h-16'} flex items-center justify-center`}>
             <img src={saviorLogo} alt="SAVIOR Logo" class={`${sidebarOpen() ? 'w-20 h-20' : 'w-16 h-16'} object-contain`} />
@@ -315,18 +341,31 @@ const Profile = () => {
       </aside>
 
       {/* Main Content */}
-      <div class={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${sidebarOpen() ? 'ml-60' : 'ml-20'}`}>
-        <header class="flex flex-col md:flex-row items-center justify-between mb-6 bg-white px-4 md:px-8 py-2 shadow-sm h-auto md:h-16 gap-4">
-          <div class="flex items-center gap-2">
-            {/* Hamburger Menu Button */}
+      <div class={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${
+        isMobile() ? 'ml-0' : sidebarOpen() ? 'ml-60' : 'ml-20'
+      }`}>
+        <header class="flex items-center justify-between bg-white px-4 py-3 shadow-sm">
+          <div class="flex items-center gap-3">
+            {/* Hamburger Menu Button - Mobile */}
             <button 
               onClick={() => setSidebarOpen(!sidebarOpen())}
-              class="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              class="p-2 rounded-lg hover:bg-gray-100 transition-colors md:hidden"
             >
               <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
+            
+            {/* Hamburger Menu Button - Desktop */}
+            <button 
+              onClick={() => setSidebarOpen(!sidebarOpen())}
+              class="p-2 rounded-lg hover:bg-gray-100 transition-colors hidden md:block"
+            >
+              <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            
             <h1 class="text-xl font-bold text-gray-800">PROFILE SETTINGS</h1>
           </div>
           <div class="flex items-center gap-4 w-full md:w-auto justify-end">
@@ -386,10 +425,10 @@ const Profile = () => {
             )}
 
             {/* Profile Details */}
-            <div class="bg-white rounded-xl shadow-sm p-8 mb-8">
+            <div class="bg-white rounded-xl shadow-sm p-4 sm:p-8 mb-8">
               <h2 class="text-xl font-bold text-gray-800 mb-6">PROFILE DETAILS</h2>
               
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
                   <input
@@ -415,17 +454,17 @@ const Profile = () => {
             </div>
 
             {/* Privacy & Security */}
-            <div class="bg-white rounded-xl shadow-sm p-8">
+            <div class="bg-white rounded-xl shadow-sm p-4 sm:p-8">
               <h2 class="text-xl font-bold text-gray-800 mb-6">PRIVACY & SECURITY</h2>
               
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
                 {/* Email Section */}
                 <div>
-                  <div class="flex justify-between items-center mb-3">
+                  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-2">
                     <h3 class="text-sm font-medium text-gray-700 uppercase">EMAIL ADDRESS</h3>
                     <button 
                       onClick={() => setShowEmailModal(true)}
-                      class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+                      class="px-3 py-1.5 text-sm text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors w-full sm:w-auto"
                     >
                       Edit
                     </button>
@@ -437,11 +476,11 @@ const Profile = () => {
 
                 {/* Password Section */}
                 <div>
-                  <div class="flex justify-between items-center mb-3">
+                  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-2">
                     <h3 class="text-sm font-medium text-gray-700 uppercase">PASSWORD</h3>
                     <button 
                       onClick={() => setShowPasswordModal(true)}
-                      class="px-4 py-2 text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+                      class="px-3 py-1.5 text-sm text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50 transition-colors w-full sm:w-auto"
                     >
                       Edit
                     </button>
